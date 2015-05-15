@@ -13,7 +13,7 @@ public class Logger {
 
     @dagger.Module
     public static class Module {
-        @Provides @Singleton Logger getInstance() {
+        @Provides @Singleton Logger provideInstance() {
             return new Logger();
         }
     }

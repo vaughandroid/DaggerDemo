@@ -9,7 +9,7 @@ import javax.inject.Singleton;
 
 public class MainActivity extends Activity {
 
-    private Logger mLogger;
+    private Component mComponent;
 
     private Button mButton1;
 
@@ -18,14 +18,24 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mLogger = DaggerMainActivity_Component.create().getLogger();
         mButton1 = (Button) findViewById(R.id.button_1);
         mButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mLogger.log("clicked");
+                mComponent.getLogger().log("clicked");
             }
         });
+    }
+
+    public void setComponent(Component component) {
+        mComponent = component;
+    }
+
+    public Component getComponent() {
+        if (mComponent == null) {
+            mComponent = DaggerMainActivity_Component.create();
+        }
+        return mComponent;
     }
 
     @Singleton @dagger.Component(modules = Logger.Module.class)
