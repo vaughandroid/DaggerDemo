@@ -1,9 +1,12 @@
 package com.vaughandroid.daggerdemo;
 
+import android.app.Instrumentation;
+import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.util.Log;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,7 +31,10 @@ public class MainActivityTest {
     Logger mLogger;
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<MainActivity>(MainActivity.class);
+    public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<MainActivity>(
+            MainActivity.class,
+            true, // initialTouchMode
+            false); // launchActivity
 
     @Before
     public void setUpDexmakerCache() throws Exception {
@@ -36,12 +42,15 @@ public class MainActivityTest {
         System.setProperty("dexmaker.dexcache", InstrumentationRegistry.getTargetContext().getCacheDir().getPath());
     }
 
+    // TODO: Could implement a custom @Rule to do this
     @Before
     public void setUpMockComponent() {
+        DemoApplication app = (DemoApplication) InstrumentationRegistry.getTargetContext().getApplicationContext();
         MockComponent mockComponent = DaggerMainActivityTest_MockComponent.create();
+        app.setComponent(mockComponent);
+
         mLogger = mockComponent.getLogger();
-        // TODO: Find a better way of inserting the mock component into the activity.
-        mActivityRule.getActivity().setComponent(mockComponent);
+        mActivityRule.launchActivity(new Intent());
     }
 
     @Test
@@ -53,7 +62,7 @@ public class MainActivityTest {
 
     @Singleton
     @Component(modules = MockModule.class)
-    public interface MockComponent extends MainActivity.Component {
+    public interface MockComponent extends DemoApplication.Component {
     }
 
     @Module
