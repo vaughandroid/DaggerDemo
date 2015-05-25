@@ -2,6 +2,7 @@ package com.vaughandroid.daggerdemo;
 
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
@@ -20,7 +21,10 @@ import static org.mockito.Mockito.verify;
 public class MainActivityTest {
 
     @Rule
-    public MockLoggerTestRule<MainActivity> mMockLoggerRule = new MockLoggerTestRule<MainActivity>(MainActivity.class);
+    public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<MainActivity>(MainActivity.class);
+
+    @Rule
+    public MockLoggerTestRule mMockLoggerRule = new MockLoggerTestRule();
 
     @Before
     public void setUpDexmakerCache() throws Exception {

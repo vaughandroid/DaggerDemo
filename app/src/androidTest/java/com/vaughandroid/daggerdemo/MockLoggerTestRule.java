@@ -5,6 +5,9 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.util.Log;
 
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.mockito.Mockito;
 
 import javax.inject.Singleton;
@@ -13,42 +16,26 @@ import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 
-public class MockLoggerTestRule<T extends Activity> extends ActivityTestRule<T> {
+public class MockLoggerTestRule implements TestRule {
 
     Logger mMockLogger;
 
-    public MockLoggerTestRule(Class<T> activityClass) {
-        super(activityClass);
-    }
-
-    public MockLoggerTestRule(Class<T> activityClass, boolean initialTouchMode) {
-        super(activityClass, initialTouchMode);
-    }
-
-    public MockLoggerTestRule(Class<T> activityClass, boolean initialTouchMode, boolean launchActivity) {
-        super(activityClass, initialTouchMode, launchActivity);
-    }
-
     @Override
-    protected void beforeActivityLaunched() {
-        super.beforeActivityLaunched();
+    public Statement apply(final Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                DemoApplication app = (DemoApplication) InstrumentationRegistry.getTargetContext().getApplicationContext();
+                MockComponent mockComponent = DaggerMockLoggerTestRule_MockComponent.create();
+                app.setComponent(mockComponent);
+                mMockLogger = mockComponent.getLogger();
 
-        DemoApplication app = (DemoApplication) InstrumentationRegistry.getTargetContext().getApplicationContext();
-        MockComponent mockComponent = DaggerMockLoggerTestRule_MockComponent.create();
-        app.setComponent(mockComponent);
-
-        mMockLogger = mockComponent.getLogger();
-    }
-
-    @Override
-    protected void afterActivityFinished() {
-        super.afterActivityFinished();
+                base.evaluate();
+            }
+        };
     }
 
     public Logger getMockLogger() {
-        if (mMockLogger == null) {
-            Log.w("MockLoggerTestRule", "Activity wasn\'t created yet");
-        }
         return mMockLogger;
     }
 
