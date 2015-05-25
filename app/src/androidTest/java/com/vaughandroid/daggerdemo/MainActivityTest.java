@@ -9,6 +9,7 @@ import android.test.suitebuilder.annotation.LargeTest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -20,11 +21,12 @@ import static org.mockito.Mockito.verify;
 @LargeTest
 public class MainActivityTest {
 
-    @Rule
-    public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<MainActivity>(MainActivity.class);
+    private MockLoggerTestRule mMockLoggerRule = new MockLoggerTestRule();
 
     @Rule
-    public MockLoggerTestRule mMockLoggerRule = new MockLoggerTestRule();
+    public RuleChain mRuleChain = RuleChain
+            .outerRule(mMockLoggerRule)
+            .around(new ActivityTestRule<MainActivity>(MainActivity.class));
 
     @Before
     public void setUpDexmakerCache() throws Exception {
